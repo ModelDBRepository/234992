@@ -1,0 +1,59 @@
+;; This buffer is for notes you don't want to save, and for Lisp evaluation.
+;; If you want to create a file, visit that file with C-x C-f,
+;; then enter the text in that file's own buffer.
+
+
+def zca_whiten(X, EPS = 1e-5):
+    """
+    https://gist.github.com/iborko/5d9c2c16004ce8b926ea
+
+    X: numpy 2d array
+        input data, rows are data points, columns are features
+
+    Returns: ZCA whitened 2d array
+    """
+    assert(X.ndim == 2)
+    
+    mu = np.mean(X)
+    
+    #   covariance matrix
+    cov = np.dot(X.T, X)
+    #   d = (lambda1, lambda2, ..., lambdaN)
+    d, E = np.linalg.eigh(cov)
+    #   D = diag(d) ^ (-1/2)
+    D = np.diag(1. / np.sqrt(d + EPS))
+    #   W_zca = E * D * E.T
+    whMat = np.dot(np.dot(E, D), E.T)
+
+    X_white = np.dot(X, whMat)
+    return X_white, mu, np.linalg.pinv(whMat), whMat
+
+
+def dowhitefunc(X,whMat):
+    
+    # % Apres avoir utilise la fonction whiten.m -> recuperer la matrice whMat
+    # % Pour l'appliquer sur les donnees
+    
+    Xwh2 = (X-np.mean(X)*np.diag(X.shape))*whMat;
+    return Xwh2 
+
+
+def decode_stim(S1, S2, S12):
+
+    
+
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser(description=
+            """
+            runs the apparent motion protocol
+            """,
+            formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("-s", "--SAVE",help="save the figures as SVG", action="store_true")
+    parser.add_argument("-f", "--file",help="filename for saving", default='data/example_data.npy')
+    
+    args = parser.parse_args()
+    # we perform one experiment with the default and we store the figs
+
+    args2, t, X, Fe_aff1, Fe1, Fi1, muVn1,\
+      Fe_aff2, Fe2, Fi2, muVn2, Fe_aff3, Fe3, Fi3, muVn3 = np.load(args.file)
